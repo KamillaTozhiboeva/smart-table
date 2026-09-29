@@ -5,7 +5,7 @@ import { data as sourceData } from "./data/dataset_1.js";
 
 import { initData } from "./data.js";
 import { processFormData } from "./lib/utils.js";
-// @todo: подключение
+
 import { initTable } from "./components/table.js";
 import { initPagination } from "./components/pagination.js";
 import { initSorting } from "./components/sorting.js";
@@ -20,30 +20,27 @@ const api = initData();
  */
 function collectState() {
   const state = processFormData(new FormData(sampleTable.container));
-  const rowsPerPage = parseInt(state.rowsPerPage); // приведём количество страниц к числу
-  const page = parseInt(state.page ?? 1); // номер страницы по умолчанию 1 и тоже число
+  const rowsPerPage = parseInt(state.rowsPerPage);
+  const page = parseInt(state.page ?? 1);
   const totalFrom = parseFloat(state.totalFrom);
   const totalTo = parseFloat(state.totalTo);
-  
 
   return {
     ...state,
     rowsPerPage,
     page,
-    total: [totalFrom, totalTo]
+    total: [totalFrom, totalTo],
   };
 }
-
 
 /**
  * Перерисовка состояния таблицы при любых изменениях
  * @param {HTMLButtonElement?} action
  */
 async function render(action) {
-  let state = collectState(); // состояние полей из таблицы
-  let query = {}; // копируем для последующего изменения
+  let state = collectState();
+  let query = {};
 
-  // @todo: использование
   query = applySearching(query, state, action);
   query = applyFiltering(query, state, action);
   query = applySorting(query, state, action);
@@ -55,40 +52,40 @@ async function render(action) {
   sampleTable.render(items);
 }
 
-const sampleTable = initTable({
-    tableTemplate: 'table',
-    rowTemplate: 'row',
-    before: ['search', 'header', 'filter'],
-    after: ['pagination'],
-  }, render,
+const sampleTable = initTable(
+  {
+    tableTemplate: "table",
+    rowTemplate: "row",
+    before: ["search", "header", "filter"],
+    after: ["pagination"],
+  },
+  render,
 );
 
-// @todo: инициализация
-
-const {applyPagination, updatePagination} = initPagination(
-    sampleTable.pagination.elements,
-    (el, page, isCurrent) => {
-        const input = el.querySelector('input');
-        const label = el.querySelector('span');
-        input.value = page;
-        input.checked = isCurrent;
-        label.textContent = page;
-        return el;
+const { applyPagination, updatePagination } = initPagination(
+  sampleTable.pagination.elements,
+  (el, page, isCurrent) => {
+    const input = el.querySelector("input");
+    const label = el.querySelector("span");
+    input.value = page;
+    input.checked = isCurrent;
+    label.textContent = page;
+    return el;
   },
 );
 
 const applySorting = initSorting([
-    sampleTable.header.elements.sortByDate,
-    sampleTable.header.elements.sortByTotal
-])
+  sampleTable.header.elements.sortByDate,
+  sampleTable.header.elements.sortByTotal,
+]);
 
-const { applyFiltering, updateIndexes} = initFiltering(
-    sampleTable.filter.elements 
+const { applyFiltering, updateIndexes } = initFiltering(
+  sampleTable.filter.elements,
 );
 
-const applySearching = initSearching('search');
+const applySearching = initSearching("search");
 
-const appRoot = document.querySelector('#app');
+const appRoot = document.querySelector("#app");
 appRoot.appendChild(sampleTable.container);
 
 async function init() {
